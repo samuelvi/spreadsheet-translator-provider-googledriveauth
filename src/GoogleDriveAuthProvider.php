@@ -92,7 +92,10 @@ class GoogleDriveAuthProvider implements ProviderInterface
 
         $applicationName = $this->configuration->getApplicationName();
         $clientSecretPath = $this->configuration->getClientSecretPath();
-        $scopesArray = explode(',', $this->configuration->getScopes());
+
+        if (!is_array($scopesArray = $this->configuration->getScopes())) {
+            $scopesArray = explode(',', $this->configuration->getScopes());
+        }
 
         $client->setAccessType('offline');
         $client->setApplicationName($applicationName);
