@@ -56,6 +56,9 @@ class GoogleDriveAuthProvider implements ProviderInterface
         return $googleDriveAuthResourceBuilder->buildResource();
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function getDocumentIdFromUrl($url)
     {
         $portions = explode('/', $url);
@@ -92,10 +95,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
 
         $applicationName = $this->configuration->getApplicationName();
         $clientSecretPath = $this->configuration->getClientSecretPath();
-
-        if (!is_array($scopesArray = $this->configuration->getScopes())) {
-            $scopesArray = explode(',', $this->configuration->getScopes());
-        }
+        $scopesArray = self::getScopes();
 
         $client->setAccessType('offline');
         $client->setApplicationName($applicationName);
@@ -155,4 +155,14 @@ class GoogleDriveAuthProvider implements ProviderInterface
         return $contents;
     }
 
+    private static function getScopes()
+    {
+        return [
+            'https://docs.google.com/feeds/',
+            Google_Service_Sheets::SPREADSHEETS_READONLY,
+            Google_Service_Sheets::SPREADSHEETS,
+            Google_Service_Sheets::DRIVE,
+            Google_Service_Sheets::DRIVE_READONLY
+        ];
+    }
 }
