@@ -1,0 +1,24 @@
+{
+    "name": "atico/spreadsheet-translator-provider-googledriveauth",
+    "license": "MIT",
+    "type": "library",
+    "description": "Spreadsheet Translator - Google Drive With Authentication Provider",
+    "autoload": {
+        "psr-4": {
+            "Atico\\SpreadsheetTranslator\\Provider\\GoogleDriveAuth\\": "./src"
+        }
+    },
+    "repositories": [{
+        "type": "path",
+        "url": "../../Core",
+        "options": {
+            "symlink": true
+        }
+    }],
+    "require": {
+        "atico/spreadsheet-translator-core": "^1.0",
+        "google/apiclient": "^2.0",
+        "php": ">=5.5.9",
+        "guzzlehttp/guzzle": "6.2.2"
+    }
+}
