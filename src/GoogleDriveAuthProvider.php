@@ -43,7 +43,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
     public function handleSourceResource()
     {
         $tempLocalResource = $this->configuration->getTempLocalSourceFile();
-        $spreadsheetId = $this->configuration->getDocumentId();
+        $spreadsheetId = $this->getDocumentIdFromUrl($this->configuration->getSourceResource());
 
         /** @var Google_Client $client */
         $client = $this->getClient();
@@ -75,17 +75,19 @@ class GoogleDriveAuthProvider implements ProviderInterface
     private function getClient()
     {
         $credentialsPath = $this->configuration->getCredentialsPath();
+        $accessTokenPath = $this->configuration->getClientSecretPath();
 
         /** @var Google_Client $client */
         $client = $this->createClient();
 
-        if (file_exists($credentialsPath)) {
-            $accessToken = json_decode(file_get_contents($credentialsPath), true);
+        if (file_exists($accessTokenPath)) {
+            $accessToken = json_decode(file_get_contents($accessTokenPath), true);
         } else {
-            $accessToken = $this->obtainAccessTokenInformationByUserInteraction($credentialsPath, $client);
+            $accessToken = $this->obtainAccessTokenInformationByUserInteraction($credentialsPath, $accessTokenPath, $client);
         }
+
         $client->setAccessToken($accessToken);
-        $this->refreshAccessTokenIfRequired($credentialsPath, $client);
+        $this->refreshAccessTokenIfRequired($accessTokenPath, $client);
         return $client;
     }
 
@@ -94,7 +96,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
         $client = new Google_Client();
 
         $applicationName = $this->configuration->getApplicationName();
-        $clientSecretPath = $this->configuration->getClientSecretPath();
+        $clientSecretPath = $this->configuration->getCredentialsPath();
         $scopesArray = self::getScopes();
 
         $client->setAccessType('offline');
@@ -105,7 +107,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
         return $client;
     }
 
-    private function obtainAccessTokenInformationByUserInteraction($credentialsPath, Google_Client $client)
+    private function obtainAccessTokenInformationByUserInteraction($credentialsPath, $accessTokenPath, Google_Client $client)
     {
         // Request authorization from the user.
         $authUrl = $client->createAuthUrl();
@@ -117,11 +119,11 @@ class GoogleDriveAuthProvider implements ProviderInterface
         $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
 
         // Store the credentials to disk.
-        if (!file_exists(dirname($credentialsPath))) {
-            mkdir(dirname($credentialsPath), 0700, true);
+        if (!file_exists(dirname($accessTokenPath))) {
+            mkdir(dirname($accessTokenPath), 0700, true);
         }
-        file_put_contents($credentialsPath, json_encode($accessToken));
-        printf("Credentials saved to %s\n", $credentialsPath);
+        file_put_contents($accessTokenPath, json_encode($accessToken));
+        printf("Credentials saved to %s\n", $accessTokenPath);
         return $accessToken;
     }
 
@@ -129,11 +131,11 @@ class GoogleDriveAuthProvider implements ProviderInterface
      * @param $credentialsPath
      * @param $client
      */
-    private function refreshAccessTokenIfRequired($credentialsPath, Google_Client $client)
+    private function refreshAccessTokenIfRequired($accessTokenPath, Google_Client $client)
     {
         if ($client->isAccessTokenExpired()) {
             $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-            file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
+            file_put_contents($accessTokenPath, json_encode($client->getAccessToken()));
         }
     }
 
@@ -162,7 +164,8 @@ class GoogleDriveAuthProvider implements ProviderInterface
             Google_Service_Sheets::SPREADSHEETS_READONLY,
             Google_Service_Sheets::SPREADSHEETS,
             Google_Service_Sheets::DRIVE,
-            Google_Service_Sheets::DRIVE_READONLY
+            Google_Service_Sheets::DRIVE_READONLY,
+            \Google_Service_Drive::DRIVE_METADATA_READONLY
         ];
     }
 }
