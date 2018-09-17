@@ -72,7 +72,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
      * Returns an authorized API client.
      * @return Google_Client the authorized client object
      */
-    private function getClient()
+    public function getClient()
     {
         $credentialsPath = $this->configuration->getCredentialsPath();
         $accessTokenPath = $this->configuration->getClientSecretPath();
