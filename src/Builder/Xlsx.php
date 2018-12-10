@@ -12,9 +12,10 @@
 namespace Atico\SpreadsheetTranslator\Provider\GoogleDriveAuth\Builder;
 
 use Atico\SpreadsheetTranslator\Core\Resource\Resource;
-use PHPExcel;
-use PHPExcel_IOFactory;
-use PHPExcel_Worksheet;
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx as XlsxWriterBase;
 
 class Xlsx implements GoogleDriveAuthResourceInterface
 {
@@ -25,28 +26,34 @@ class Xlsx implements GoogleDriveAuthResourceInterface
         $this->googleDriveAuthResource = $googleDriveAuthResource;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function buildResource()
     {
         $this->writeFileFromContentsArray($this->googleDriveAuthResource->getValue(), $this->googleDriveAuthResource->getDestinationFolder());
         return new Resource($this->googleDriveAuthResource->getDestinationFolder(), $this->googleDriveAuthResource->getFormat());
     }
 
+    /**
+     * @throws \Exception
+     */
     private function writeFileFromContentsArray($contents, $tempLocalResource)
     {
         if (count($contents) == 0) {
             throw new \Exception('No data found');
         } else {
-            $doc = new PHPExcel();
+            $doc = new Spreadsheet();
             $doc->removeSheetByIndex(0);
 
             foreach ($contents as $range => $content) {
-                $workSheet = new PHPExcel_Worksheet();
+                $workSheet = new Worksheet();
                 $workSheet->setTitle($range);
                 $workSheet->fromArray($content, null, 'A1');
                 $doc->addSheet($workSheet);
             }
 
-            $writer = PHPExcel_IOFactory::createWriter($doc, 'Excel2007');
+            $writer = new XlsxWriterBase();
             $writer->save($tempLocalResource);
         }
     }
