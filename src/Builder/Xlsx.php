@@ -15,7 +15,7 @@ use Atico\SpreadsheetTranslator\Core\Resource\Resource;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx as XlsxWriterBase;
+use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 
 class Xlsx implements GoogleDriveAuthResourceInterface
 {
@@ -53,7 +53,8 @@ class Xlsx implements GoogleDriveAuthResourceInterface
                 $doc->addSheet($workSheet);
             }
 
-            $writer = new XlsxWriterBase();
+            /** @var IWriter $writer */
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($doc, "Xlsx"); // new PHPExcel_Writer_Excel2007($objPHPExcel);
             $writer->save($tempLocalResource);
         }
     }
