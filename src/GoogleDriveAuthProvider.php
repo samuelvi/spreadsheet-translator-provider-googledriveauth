@@ -11,6 +11,8 @@
 
 namespace Atico\SpreadsheetTranslator\Provider\GoogleDriveAuth;
 
+use Exception;
+use Google_Service_Drive;
 use Atico\SpreadsheetTranslator\Core\Configuration\Configuration;
 use Atico\SpreadsheetTranslator\Provider\GoogleDriveAuth\Builder\GoogleDriveAuthResource;
 use Atico\SpreadsheetTranslator\Provider\GoogleDriveAuth\Builder\GoogleDriveAuthResourceFactory;
@@ -57,15 +59,17 @@ class GoogleDriveAuthProvider implements ProviderInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getDocumentIdFromUrl($url)
     {
         $portions = explode('/', $url);
         foreach ($portions as $index => $portion) {
-            if ($portion == 'd') return $portions[$index + 1];
+            if ($portion === 'd') {
+                return $portions[$index + 1];
+            }
         }
-        throw new \Exception(sprintf('Document Id not found in the url: "$url"', $url));
+        throw new Exception(sprintf('Document Id not found in the url: "$url"', $url));
     }
 
     /**
@@ -74,7 +78,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
      */
     public function getClient()
     {
-        $credentialsPath = $this->configuration->getCredentialsPath();
+        $this->configuration->getCredentialsPath();
         $accessTokenPath = $this->configuration->getClientSecretPath();
 
         /** @var Google_Client $client */
@@ -83,7 +87,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
         if (file_exists($accessTokenPath)) {
             $accessToken = json_decode(file_get_contents($accessTokenPath), true);
         } else {
-            $accessToken = $this->obtainAccessTokenInformationByUserInteraction($credentialsPath, $accessTokenPath, $client);
+            $accessToken = $this->obtainAccessTokenInformationByUserInteraction($accessTokenPath, $client);
         }
 
         $client->setAccessToken($accessToken);
@@ -97,7 +101,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
 
         $applicationName = $this->configuration->getApplicationName();
         $clientSecretPath = $this->configuration->getCredentialsPath();
-        $scopesArray = self::getScopes();
+        $scopesArray = $this->getScopes();
 
         $client->setAccessType('offline');
         $client->setApplicationName($applicationName);
@@ -107,7 +111,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
         return $client;
     }
 
-    private function obtainAccessTokenInformationByUserInteraction($credentialsPath, $accessTokenPath, Google_Client $client)
+    private function obtainAccessTokenInformationByUserInteraction($accessTokenPath, Google_Client $client)
     {
         // Request authorization from the user.
         $authUrl = $client->createAuthUrl();
@@ -157,7 +161,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
         return $contents;
     }
 
-    private static function getScopes()
+    private function getScopes()
     {
         return [
             'https://docs.google.com/feeds/',
@@ -165,7 +169,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
             Google_Service_Sheets::SPREADSHEETS,
             Google_Service_Sheets::DRIVE,
             Google_Service_Sheets::DRIVE_READONLY,
-            \Google_Service_Drive::DRIVE_METADATA_READONLY
+            Google_Service_Drive::DRIVE_METADATA_READONLY
         ];
     }
 }

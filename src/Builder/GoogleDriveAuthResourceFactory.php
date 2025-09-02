@@ -18,8 +18,7 @@ class GoogleDriveAuthResourceFactory
     protected function getClassName($format)
     {
         $formatCamelized = Strings::camelize($format);
-        $class = sprintf('\Atico\SpreadsheetTranslator\Provider\GoogleDriveAuth\Builder\%s', $formatCamelized);
-        return $class;
+        return sprintf('\Atico\SpreadsheetTranslator\Provider\GoogleDriveAuth\Builder\%s', $formatCamelized);
     }
 
     public function create(GoogleDriveAuthResource $resource)

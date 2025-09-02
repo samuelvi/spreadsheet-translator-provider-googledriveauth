@@ -11,6 +11,8 @@
 
 namespace Atico\SpreadsheetTranslator\Provider\GoogleDriveAuth\Builder;
 
+use Exception;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Atico\SpreadsheetTranslator\Core\Resource\Resource;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -27,7 +29,7 @@ class Xlsx implements GoogleDriveAuthResourceInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function buildResource()
     {
@@ -36,12 +38,12 @@ class Xlsx implements GoogleDriveAuthResourceInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function writeFileFromContentsArray($contents, $tempLocalResource)
     {
         if (count($contents) == 0) {
-            throw new \Exception('No data found');
+            throw new Exception('No data found');
         } else {
             $doc = new Spreadsheet();
             $doc->removeSheetByIndex(0);
@@ -54,7 +56,7 @@ class Xlsx implements GoogleDriveAuthResourceInterface
             }
 
             /** @var IWriter $writer */
-            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($doc, "Xlsx"); // new PHPExcel_Writer_Excel2007($objPHPExcel);
+            $writer = IOFactory::createWriter($doc, "Xlsx"); // new PHPExcel_Writer_Excel2007($objPHPExcel);
             $writer->save($tempLocalResource);
         }
     }
