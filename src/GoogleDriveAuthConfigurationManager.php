@@ -11,11 +11,13 @@
 
 namespace Atico\SpreadsheetTranslator\Provider\GoogleDriveAuth;
 
+use Override;
 use Atico\SpreadsheetTranslator\Core\Configuration\ProviderConfigurationInterface;
 use Atico\SpreadsheetTranslator\Core\Provider\DefaultProviderManager;
 
 class GoogleDriveAuthConfigurationManager extends DefaultProviderManager implements ProviderConfigurationInterface
 {
+    #[Override]
     public function getDefaultFormat()
     {
         return parent::getDefaultFormat();

@@ -15,7 +15,7 @@ use Atico\SpreadsheetTranslator\Core\Util\Strings;
 
 class GoogleDriveAuthResourceFactory
 {
-    protected function getClassName($format)
+    protected function getClassName($format): string
     {
         $formatCamelized = Strings::camelize($format);
         return sprintf('\Atico\SpreadsheetTranslator\Provider\GoogleDriveAuth\Builder\%s', $formatCamelized);

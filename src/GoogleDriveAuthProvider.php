@@ -25,11 +25,9 @@ use Atico\SpreadsheetTranslator\Core\Provider\ProviderInterface;
 
 class GoogleDriveAuthProvider implements ProviderInterface
 {
-    /** @var GoogleDriveAuthConfigurationManager $configuration */
-    protected $configuration;
+    protected GoogleDriveAuthConfigurationManager $configuration;
 
-    /** @var  GoogleDriveAuthResourceFactory $googleDriveAuthResourceFactory */
-    protected $googleDriveAuthResourceFactory;
+    protected GoogleDriveAuthResourceFactory $googleDriveAuthResourceFactory;
 
     public function __construct(Configuration $configuration)
     {
@@ -37,7 +35,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
         $this->googleDriveAuthResourceFactory = new GoogleDriveAuthResourceFactory();
     }
 
-    public function getProvider()
+    public function getProvider(): string
     {
         return 'google_drive_auth';
     }
@@ -61,9 +59,9 @@ class GoogleDriveAuthProvider implements ProviderInterface
     /**
      * @throws Exception
      */
-    protected function getDocumentIdFromUrl($url)
+    protected function getDocumentIdFromUrl($url): string
     {
-        $portions = explode('/', $url);
+        $portions = explode('/', (string) $url);
         foreach ($portions as $index => $portion) {
             if ($portion === 'd') {
                 return $portions[$index + 1];
@@ -95,7 +93,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
         return $client;
     }
 
-    public function createClient()
+    public function createClient(): Google_Client
     {
         $client = new Google_Client();
 
@@ -123,8 +121,8 @@ class GoogleDriveAuthProvider implements ProviderInterface
         $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
 
         // Store the credentials to disk.
-        if (!file_exists(dirname($accessTokenPath))) {
-            mkdir(dirname($accessTokenPath), 0700, true);
+        if (!file_exists(dirname((string) $accessTokenPath))) {
+            mkdir(dirname((string) $accessTokenPath), 0700, true);
         }
         file_put_contents($accessTokenPath, json_encode($accessToken));
         printf("Credentials saved to %s\n", $accessTokenPath);
@@ -135,7 +133,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
      * @param $credentialsPath
      * @param $client
      */
-    private function refreshAccessTokenIfRequired($accessTokenPath, Google_Client $client)
+    private function refreshAccessTokenIfRequired($accessTokenPath, Google_Client $client): void
     {
         if ($client->isAccessTokenExpired()) {
             $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
@@ -143,10 +141,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
         }
     }
 
-    /**
-     * @return array
-     */
-    private function getContentsArrayFromRemoteExcelFile($client, $spreadsheetId)
+    private function getContentsArrayFromRemoteExcelFile($client, string $spreadsheetId): array
     {
         /** @var Google_Service_Sheets $service */
         $service = new Google_Service_Sheets($client);
@@ -161,7 +156,7 @@ class GoogleDriveAuthProvider implements ProviderInterface
         return $contents;
     }
 
-    private function getScopes()
+    private function getScopes(): array
     {
         return [
             'https://docs.google.com/feeds/',

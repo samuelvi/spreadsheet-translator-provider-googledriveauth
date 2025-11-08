@@ -21,17 +21,14 @@ use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 
 class Xlsx implements GoogleDriveAuthResourceInterface
 {
-    protected $googleDriveAuthResource;
-
-    function __construct(GoogleDriveAuthResource $googleDriveAuthResource)
+    function __construct(protected GoogleDriveAuthResource $googleDriveAuthResource)
     {
-        $this->googleDriveAuthResource = $googleDriveAuthResource;
     }
 
     /**
      * @throws Exception
      */
-    public function buildResource()
+    public function buildResource(): Resource
     {
         $this->writeFileFromContentsArray($this->googleDriveAuthResource->getValue(), $this->googleDriveAuthResource->getDestinationFolder());
         return new Resource($this->googleDriveAuthResource->getDestinationFolder(), $this->googleDriveAuthResource->getFormat());
@@ -40,24 +37,22 @@ class Xlsx implements GoogleDriveAuthResourceInterface
     /**
      * @throws Exception
      */
-    private function writeFileFromContentsArray($contents, $tempLocalResource)
+    private function writeFileFromContentsArray($contents, $tempLocalResource): void
     {
-        if (count($contents) == 0) {
+        if (count($contents) === 0) {
             throw new Exception('No data found');
-        } else {
-            $doc = new Spreadsheet();
-            $doc->removeSheetByIndex(0);
-
-            foreach ($contents as $range => $content) {
-                $workSheet = new Worksheet();
-                $workSheet->setTitle($range);
-                $workSheet->fromArray($content, null, 'A1');
-                $doc->addSheet($workSheet);
-            }
-
-            /** @var IWriter $writer */
-            $writer = IOFactory::createWriter($doc, "Xlsx"); // new PHPExcel_Writer_Excel2007($objPHPExcel);
-            $writer->save($tempLocalResource);
         }
+        $doc = new Spreadsheet();
+        $doc->removeSheetByIndex(0);
+        foreach ($contents as $range => $content) {
+            $workSheet = new Worksheet();
+            $workSheet->setTitle($range);
+            $workSheet->fromArray($content, null, 'A1');
+            $doc->addSheet($workSheet);
+        }
+        /** @var IWriter $writer */
+        $writer = IOFactory::createWriter($doc, "Xlsx");
+        // new PHPExcel_Writer_Excel2007($objPHPExcel);
+        $writer->save($tempLocalResource);
     }
 }

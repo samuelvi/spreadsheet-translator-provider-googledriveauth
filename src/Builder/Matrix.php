@@ -15,14 +15,11 @@ use Atico\SpreadsheetTranslator\Core\Resource\Resource;
 
 class Matrix implements GoogleDriveAuthResourceInterface
 {
-    protected $googleDriveAuthResource;
-
-    function __construct(GoogleDriveAuthResource $googleDriveAuthResource)
+    function __construct(protected GoogleDriveAuthResource $googleDriveAuthResource)
     {
-        $this->googleDriveAuthResource = $googleDriveAuthResource;
     }
 
-    public function buildResource()
+    public function buildResource(): Resource
     {
         return new Resource($this->googleDriveAuthResource->getValue(), $this->googleDriveAuthResource->getFormat());
     }

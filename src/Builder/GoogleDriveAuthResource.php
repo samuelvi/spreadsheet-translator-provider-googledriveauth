@@ -15,12 +15,9 @@ use Atico\SpreadsheetTranslator\Core\Resource\Resource;
 
 class GoogleDriveAuthResource extends Resource
 {
-    protected $destinationFolder;
-
-    public function __construct($value, $format, $destinationFolder)
+    public function __construct($value, $format, protected $destinationFolder)
     {
         parent::__construct($value, $format);
-        $this->destinationFolder = $destinationFolder;
     }
 
     public function getDestinationFolder()
@@ -28,7 +25,7 @@ class GoogleDriveAuthResource extends Resource
         return $this->destinationFolder;
     }
 
-    public function setDestinationFolder($destinationFolder)
+    public function setDestinationFolder($destinationFolder): void
     {
         $this->destinationFolder = $destinationFolder;
     }
